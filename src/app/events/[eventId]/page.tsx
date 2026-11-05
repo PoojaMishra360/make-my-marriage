@@ -1,0 +1,8 @@
+import Link from "next/link";
+import { demoDashboard } from "@/features/dashboard/demo-data";
+
+export default async function EventPage({ params }: { params: Promise<{ eventId: string }> }) {
+  const { eventId } = await params;
+  const event = demoDashboard.upcomingEvents.find((item) => item.id === eventId) ?? demoDashboard.upcomingEvents[0];
+  return <main className="shell"><header className="topbar"><Link href="/" className="brand">Saath</Link><Link href="/" className="back">← Dashboard</Link></header><section className="hero compact"><p className="eyebrow">{event.dateLocal} · {event.startTimeLocal}</p><h1>{event.name}</h1><p>{event.venue.name}, {event.venue.address}</p><div className="actions"><button>Edit event</button><button className="secondary">Add guest</button></div></section><section className="metrics"><article><span>Confirmed guests</span><strong>86</strong><p>24 awaiting response</p></article><article><span>Open tasks</span><strong>5</strong><p>2 due this week</p></article><article><span>Event budget</span><strong>₹ 1,40,000</strong><p>₹ 62,000 recorded as spent</p></article></section><section className="grid"><article className="panel"><p className="eyebrow">Livestream</p><h2>Share the celebration</h2><p className="muted">No livestream link has been added yet.</p><button className="secondary">Add livestream details</button></article><article className="panel"><p className="eyebrow">Photos</p><h2>Event gallery</h2><p className="muted">Photos will remain private to invited collaborators.</p><button className="secondary">Upload a photo</button></article></section></main>;
+}
