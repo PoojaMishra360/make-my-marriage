@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Saath | Wedding planning together",
-  description: "A shared place for families to plan an Indian wedding."
+  title: "Saath | Plan your wedding, together",
+  description: "A thoughtful shared space for your wedding celebrations, family, guests, and the details in between."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
