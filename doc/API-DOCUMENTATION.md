@@ -10,7 +10,7 @@
 
 - Authenticated routes use a secure session cookie created by passwordless email sign-in.
 - All wedding-scoped routes include `weddingId`; the server verifies the signed-in user has active membership in that wedding.
-- `owner` and `collaborator` can read and update planning records. Workspace deletion and membership/access management are owner-only.
+- `owner`, `admin`, `manager`, and legacy `collaborator` members can read and update planning records. The owner has full access; admins can manage collaborator invitations but cannot invite another admin; managers have planning access; collaborators retain the legacy standard access. Workspace deletion remains owner-only.
 - Guest RSVP routes use an opaque event/household token and do not require an account.
 - IDs are MongoDB ObjectId strings in API payloads.
 - Timestamps are ISO 8601 UTC strings. Event dates use `YYYY-MM-DD`; local event times use `HH:mm` with an IANA time zone.
@@ -108,6 +108,20 @@ Revoke the current session and clear the cookie. Response: `204 No Content`.
 Return the current collaborator and memberships. Response: `200 OK`.
 
 ## 3. Wedding workspace and collaborators
+
+### `POST /weddings/:weddingId/invitations`
+
+Owner or admin. Creates a seven-day invitation with role `admin`, `manager`, or `collaborator`. Only the owner can invite an admin. When `RESEND_API_KEY` is configured, the invitation is delivered through Resend; otherwise the response includes a development preview URL.
+
+Request:
+
+```json
+{ "displayName": "Priya Patel", "email": "priya@example.com", "role": "manager" }
+```
+
+### `GET /weddings/:weddingId/invitations`
+
+Owner-only. Lists pending invitations without exposing token hashes.
 
 ### `POST /weddings`
 
