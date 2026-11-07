@@ -35,7 +35,7 @@ export default function CreateWeddingPage() {
       const response = await fetch("/api/v1/weddings", { method: "POST", headers: { ...developmentHeaders(), "content-type": "application/json" }, body: JSON.stringify(payload) });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error?.message ?? "Could not create your wedding workspace.");
-      window.location.assign(`/weddings/${body._id}/events`);
+      window.location.assign("/dashboard");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not create your wedding workspace.");
     } finally {

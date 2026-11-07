@@ -4,6 +4,8 @@ import { AccountLink } from "@/app/components/account-link";
 
 const heroPhoto = "https://lh3.googleusercontent.com/aida-public/AB6AXuCUOv59goVI393lmssPaECK2GRSnB4KvmPEA5bisB730kIeyuVpkKS-4RIThD7NuTkH6N8vQYqCo0BcjTtdSz7AOAmXWEQvDaViIG2C5m8PkqjEclIBoUgYiSCg351evA409JAkZd0NKbhe3BwLqLp8tTCbvA6r-l1NEO-nQi8FTG_GuvJmgi1zrLBoTdi_FqdN2oNOqgigVgnv3wjpQRWivTe-xI1cYqHZAXsvdzY";
 const familyPhoto = "https://lh3.googleusercontent.com/aida-public/AB6AXuAzlgMFTB3gXFHyN2KjaBX6FnoiK2QoRNE5JWrbKtnb6qKhCGLV2_finsbW0l_NGI-IqYSQ5t1wBLcLuexZTta0mg3MBrXp7-DiIpH_oLdBHFNeOkbkhgTAl6zxDB4nC0VtAFkKqI8beF2bkNQ-O2twMEVvr0cJWEHCmRVJH_OdXV6DQ24m92-CDn61wjJeTBSeNdDvQSdHOe3HirCywHC4FX5LPrh_8jYju8sCTE";
+const createWeddingHref = "/login?next=%2Fworkspace%2Fnew";
+const workspaceHref = "/login?next=%2Fworkspace%2Fnew";
 
 const features = [
   { number: "01", title: "Plan every event", copy: "Mehendi, Sangeet, Haldi, Pheras, and Reception. Each with its own schedule, venue details, and timeline." },
@@ -34,7 +36,7 @@ export default function HomePage() {
         </nav>
         <div className="landing-header-actions">
           <AccountLink />
-          <Link className="landing-button landing-button-small" href="/workspace/new">Create your wedding</Link>
+          <Link className="landing-button landing-button-small" href={createWeddingHref}>Create your wedding</Link>
         </div>
       </header>
 
@@ -44,8 +46,8 @@ export default function HomePage() {
           <h1>Plan your wedding,<br /><em>together.</em></h1>
           <p className="landing-lede">One private place for your events, family, guests, spending, photos, and every little detail.</p>
           <div className="landing-hero-actions">
-            <Link className="landing-button" href="/workspace/new">Create your wedding <span aria-hidden="true">→</span></Link>
-            <Link className="landing-button landing-button-quiet" href="/workspace/new">Open a saved workspace</Link>
+            <Link className="landing-button" href={createWeddingHref}>Create your wedding <span aria-hidden="true">→</span></Link>
+            <Link className="landing-button landing-button-quiet" href={workspaceHref}>Open a saved workspace</Link>
           </div>
             <ul className="landing-proof-list" aria-label="Make My Marriage principles">
             <li>Zero advertising &amp; spam</li><li>No app installation required</li><li>Family-first access</li>
@@ -121,11 +123,11 @@ export default function HomePage() {
         <p className="landing-kicker">Your wedding, beautifully organized</p>
         <h2>Your wedding, beautifully organized.</h2>
         <p>Begin your private wedding workspace today and bring both families together in complete serenity.</p>
-        <div className="landing-hero-actions landing-bottom-actions"><Link className="landing-button" href="/workspace/new">Create your wedding <span aria-hidden="true">→</span></Link><Link className="landing-button landing-button-quiet" href="/workspace/new">Open a saved workspace</Link></div>
+        <div className="landing-hero-actions landing-bottom-actions"><Link className="landing-button" href={createWeddingHref}>Create your wedding <span aria-hidden="true">→</span></Link><Link className="landing-button landing-button-quiet" href={workspaceHref}>Open a saved workspace</Link></div>
         <small>Workspace setup is available in the local development preview. Secure family sign-in is still being configured.</small>
       </section>
 
-      <footer className="landing-footer"><div className="footer-top"><Link className="footer-brand" href="#top"><SaathEmblem /><span>Make My Marriage</span></Link><p>A private space for your wedding and your family</p><nav aria-label="Footer navigation"><a href="#families">Privacy</a><a href="#how-it-works">Help</a><Link href="/workspace/new">Workspace</Link></nav></div><div className="footer-bottom"><span>© 2026 Make My Marriage. Crafted for intimate celebrations.</span><span>Private workspace features are in development.</span></div></footer>
+      <footer className="landing-footer"><div className="footer-top"><Link className="footer-brand" href="#top"><SaathEmblem /><span>Make My Marriage</span></Link><p>A private space for your wedding and your family</p><nav aria-label="Footer navigation"><a href="#families">Privacy</a><a href="#how-it-works">Help</a><Link href={workspaceHref}>Workspace</Link></nav></div><div className="footer-bottom"><span>© 2026 Make My Marriage. Crafted for intimate celebrations.</span><span>Private workspace features are in development.</span></div></footer>
     </main>
   );
 }

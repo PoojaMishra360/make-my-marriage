@@ -9,7 +9,9 @@ const previewPhoto = "https://lh3.googleusercontent.com/aida-public/AB6AXuCpnOPy
 
 type Mode = "sign-in" | "sign-up";
 
-export default function LoginForm() {
+type LoginFormProps = { redirectTo?: string };
+
+export default function LoginForm({ redirectTo = "/welcome" }: LoginFormProps) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("sign-in");
   const [error, setError] = useState("");
@@ -26,7 +28,7 @@ export default function LoginForm() {
       const response = await fetch(`/api/auth?action=${mode}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error?.message ?? "Could not complete sign-in.");
-      router.push("/welcome");
+      router.push(redirectTo);
       router.refresh();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not complete sign-in.");
