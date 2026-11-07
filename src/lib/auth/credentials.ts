@@ -1,12 +1,13 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { ObjectId } from "mongodb";
+import { ApiError } from "@/lib/api/errors";
 
 const sessionCookieName = "mmm_session";
 const developmentSessionSecret = "make-my-marriage-development-session-secret";
 
 function getSessionSecret() {
   const secret = process.env.AUTH_SECRET;
-  if (!secret && process.env.NODE_ENV === "production") throw new Error("AUTH_SECRET must be configured in production.");
+  if (!secret && process.env.NODE_ENV === "production") throw new ApiError(503, "AUTH_SECRET_NOT_CONFIGURED", "AUTH_SECRET is not configured for this deployment.");
   return secret ?? developmentSessionSecret;
 }
 
