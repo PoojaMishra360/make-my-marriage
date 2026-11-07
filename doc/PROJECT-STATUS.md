@@ -41,6 +41,7 @@ The landing page contains illustrative copy and sample figures to match the Stit
 | 7 November 2026 | Navigation and email delivery improved | Parallelized independent dashboard database reads to reduce first protected-route latency and added plain-text content, a reply address, and a clearer call to action to invitation emails. Resend domain verification remains required to prevent spam placement. |
 | 7 November 2026 | Role-based collaborator flow added | Added owner, admin, manager, and legacy collaborator role handling, admin invitation permissions, owner-only admin delegation, role selection in the collaborator UI, and role labels in pending invitations. |
 | 7 November 2026 | Production sign-in enabled | Removed the production-only authentication block, enabled signed email/password sessions on Vercel, and made `AUTH_SECRET` mandatory when production sessions are used. `npm run build` and `npm run lint` pass. |
+| 7 November 2026 | Vercel auth diagnostics improved | Added safe API error codes for missing `AUTH_SECRET`, missing `MONGODB_URI`, and unreachable MongoDB deployments so production login failures are actionable without exposing secrets. |
 
 ## Suggested next milestones
 
