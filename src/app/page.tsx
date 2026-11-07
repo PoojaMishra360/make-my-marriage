@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { AccountLink } from "@/app/components/account-link";
 
 const heroPhoto = "https://lh3.googleusercontent.com/aida-public/AB6AXuCUOv59goVI393lmssPaECK2GRSnB4KvmPEA5bisB730kIeyuVpkKS-4RIThD7NuTkH6N8vQYqCo0BcjTtdSz7AOAmXWEQvDaViIG2C5m8PkqjEclIBoUgYiSCg351evA409JAkZd0NKbhe3BwLqLp8tTCbvA6r-l1NEO-nQi8FTG_GuvJmgi1zrLBoTdi_FqdN2oNOqgigVgnv3wjpQRWivTe-xI1cYqHZAXsvdzY";
 const familyPhoto = "https://lh3.googleusercontent.com/aida-public/AB6AXuAzlgMFTB3gXFHyN2KjaBX6FnoiK2QoRNE5JWrbKtnb6qKhCGLV2_finsbW0l_NGI-IqYSQ5t1wBLcLuexZTta0mg3MBrXp7-DiIpH_oLdBHFNeOkbkhgTAl6zxDB4nC0VtAFkKqI8beF2bkNQ-O2twMEVvr0cJWEHCmRVJH_OdXV6DQ24m92-CDn61wjJeTBSeNdDvQSdHOe3HirCywHC4FX5LPrh_8jYju8sCTE";
@@ -25,15 +26,15 @@ export default function HomePage() {
   return (
     <main className="landing-page">
       <header className="landing-header">
-        <Link className="landing-brand" href="#top" aria-label="Saath home"><SaathEmblem /><span className="brand-wordmark">Saath</span><span className="brand-divider" /> <small>EST. REGISTRY</small></Link>
+        <Link className="landing-brand" href="#top" aria-label="Make My Marriage home"><SaathEmblem /><span className="brand-wordmark">Make My Marriage</span><span className="brand-divider" /> <small>EST. REGISTRY</small></Link>
         <nav className="landing-nav" aria-label="Main navigation">
           <a href="#how-it-works">How it works</a>
           <a href="#features">Features</a>
           <a href="#families">For families</a>
         </nav>
         <div className="landing-header-actions">
-          <Link className="landing-signin" href="#get-started">Sign in</Link>
-          <Link className="landing-button landing-button-small" href="#get-started">Create your wedding</Link>
+          <AccountLink />
+          <Link className="landing-button landing-button-small" href="/workspace/new">Create your wedding</Link>
         </div>
       </header>
 
@@ -43,10 +44,10 @@ export default function HomePage() {
           <h1>Plan your wedding,<br /><em>together.</em></h1>
           <p className="landing-lede">One private place for your events, family, guests, spending, photos, and every little detail.</p>
           <div className="landing-hero-actions">
-            <Link className="landing-button" href="#get-started">Create your wedding for free <span aria-hidden="true">→</span></Link>
-            <Link className="landing-button landing-button-quiet" href="#get-started">Sign in to your wedding</Link>
+            <Link className="landing-button" href="/workspace/new">Create your wedding <span aria-hidden="true">→</span></Link>
+            <Link className="landing-button landing-button-quiet" href="/workspace/new">Open a saved workspace</Link>
           </div>
-          <ul className="landing-proof-list" aria-label="Saath principles">
+            <ul className="landing-proof-list" aria-label="Make My Marriage principles">
             <li>Zero advertising &amp; spam</li><li>No app installation required</li><li>Family-first access</li>
           </ul>
         </div>
@@ -64,7 +65,7 @@ export default function HomePage() {
           <p>Here is a preview of the private wedding workspace you and your family can use after creating your celebration. The content below is sample data.</p>
         </div>
         <div className="workspace-preview">
-          <div className="preview-topbar"><div className="preview-brand"><SaathEmblem /><span><strong>Saath Workspace</strong><small>Aarav &amp; Meera · Jaipur</small></span></div><span className="preview-demo-label">Sample workspace preview · illustrative data</span></div>
+          <div className="preview-topbar"><div className="preview-brand"><SaathEmblem /><span><strong>Make My Marriage Workspace</strong><small>Aarav &amp; Meera · Jaipur</small></span></div><span className="preview-demo-label">Sample workspace preview · illustrative data</span></div>
           <div className="preview-stats">
             <article className="preview-card preview-event-card"><div className="preview-card-label">UPCOMING CEREMONY <span>3 DAYS TO GO</span></div><h3>Mehendi Ceremony</h3><p>Courtyard at ITC Rajputana, Jaipur</p><div className="preview-progress"><span /></div><small>Venue &amp; vendor setup · 85%</small></article>
             <article className="preview-card"><div className="preview-card-label">GUEST &amp; RSVP TRACKER</div><strong className="preview-number">186 <small>of 248 total</small></strong><div className="preview-progress preview-progress-green"><span /></div><small>75% response · sample data</small></article>
@@ -109,7 +110,7 @@ export default function HomePage() {
         <div className="family-copy">
           <p className="landing-kicker">Both sides · One registry</p>
           <h2>Made for two families planning one beautiful celebration.</h2>
-          <p className="family-intro">Traditional Indian weddings bring together both sets of parents, aunts, uncles, and siblings. Saath gives everyone one place to follow the celebration and help with the details.</p>
+          <p className="family-intro">Traditional Indian weddings bring together both sets of parents, aunts, uncles, and siblings. Make My Marriage gives everyone one place to follow the celebration and help with the details.</p>
           <ul className="family-points"><li><span>01</span><div><strong>Passwordless family sign-in</strong><p>Family members simply enter their email and tap a secure link — zero passwords to remember.</p></div></li><li><span>02</span><div><strong>Zero hassle for guests</strong><p>Guests do not need an account. They click a WhatsApp or email link and confirm RSVPs in seconds.</p></div></li><li><span>03</span><div><strong>Strictly private &amp; ad-free</strong><p>No commercial vendors, no directory spam, no public social feeds. Only invited people can view your wedding.</p></div></li></ul>
         </div>
         <div className="family-visual"><Image src={familyPhoto} alt="Two family members smiling as they review wedding stationery together" width={1000} height={720} sizes="(max-width: 680px) 100vw, 40vw" unoptimized /><blockquote><span>“</span><p>No more chaotic WhatsApp groups.</p><cite>“Our parents could check hotel arrival lists and ceremony times without asking us a dozen times a day.”<br /><br />— Radhika &amp; Kunal, Mumbai</cite></blockquote></div>
@@ -120,11 +121,11 @@ export default function HomePage() {
         <p className="landing-kicker">Your wedding, beautifully organized</p>
         <h2>Your wedding, beautifully organized.</h2>
         <p>Begin your private wedding workspace today and bring both families together in complete serenity.</p>
-        <div className="landing-hero-actions landing-bottom-actions"><Link className="landing-button" href="#get-started">Create your wedding for free <span aria-hidden="true">→</span></Link><Link className="landing-button landing-button-quiet" href="#get-started">Sign in</Link></div>
-        <small>Free for couples and families · No credit card required · Sign-in and wedding creation are coming later.</small>
+        <div className="landing-hero-actions landing-bottom-actions"><Link className="landing-button" href="/workspace/new">Create your wedding <span aria-hidden="true">→</span></Link><Link className="landing-button landing-button-quiet" href="/workspace/new">Open a saved workspace</Link></div>
+        <small>Workspace setup is available in the local development preview. Secure family sign-in is still being configured.</small>
       </section>
 
-      <footer className="landing-footer"><div className="footer-top"><Link className="footer-brand" href="#top"><SaathEmblem /><span>Saath</span></Link><p>A private space for your wedding and your family</p><nav aria-label="Footer navigation"><a href="#families">Privacy</a><a href="#how-it-works">Help</a><a href="#get-started">Sign in</a></nav></div><div className="footer-bottom"><span>© 2025 Saath Wedding Platform. Crafted for intimate celebrations.</span><span>Discreet · End-to-end Encrypted</span></div></footer>
+      <footer className="landing-footer"><div className="footer-top"><Link className="footer-brand" href="#top"><SaathEmblem /><span>Make My Marriage</span></Link><p>A private space for your wedding and your family</p><nav aria-label="Footer navigation"><a href="#families">Privacy</a><a href="#how-it-works">Help</a><Link href="/workspace/new">Workspace</Link></nav></div><div className="footer-bottom"><span>© 2026 Make My Marriage. Crafted for intimate celebrations.</span><span>Private workspace features are in development.</span></div></footer>
     </main>
   );
 }
