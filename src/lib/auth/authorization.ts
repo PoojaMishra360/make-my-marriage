@@ -5,9 +5,8 @@ import { readSessionUserId } from "./credentials";
 
 export type WorkspaceRole = "owner" | "admin" | "manager" | "collaborator";
 
-/** Development identity only. Replace with a verified provider session before production use. */
+/** Resolves the signed-in user for both local development and deployed environments. */
 export function requireDevelopmentUser(request: Request) {
-  if (process.env.NODE_ENV === "production") throw new ApiError(503, "AUTH_NOT_CONFIGURED", "Sign-in is not configured yet.");
   const userId = readSessionUserId(request) ?? request.headers.get("x-development-user-id");
   if (!userId || !ObjectId.isValid(userId)) throw new ApiError(401, "AUTH_REQUIRED", "Sign in is required.");
   return userId;

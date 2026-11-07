@@ -21,7 +21,6 @@ export async function POST(request: Request) {
       response.headers.set("Set-Cookie", clearSessionCookieHeader());
       return response;
     }
-    if (process.env.NODE_ENV === "production") throw new ApiError(503, "AUTH_NOT_CONFIGURED", "Production sign-in is not configured yet.");
     let body: unknown;
     try { body = await request.json(); } catch { throw new ApiError(400, "INVALID_JSON", "Send a valid JSON request body."); }
     const users = (await getDb()).collection("users");
