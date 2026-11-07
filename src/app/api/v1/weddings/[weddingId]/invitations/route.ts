@@ -36,7 +36,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ wed
     const { token, tokenHash } = createInvitationToken();
     const invitation = { weddingId: weddingObjectId, email: input.email.trim(), emailNormalized, displayName: input.displayName, role: input.role, tokenHash, status: "pending", expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), invitedByUserId: new ObjectId(owner.userId), createdAt: new Date() };
     const result = await db.collection("invitations").insertOne(invitation);
-    const url = invitationUrl(token);
+    const url = invitationUrl(token, request);
     let delivery: "sent" | "development_preview" = "development_preview";
     if (process.env.RESEND_API_KEY) {
       try {
