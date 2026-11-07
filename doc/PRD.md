@@ -155,7 +155,7 @@ These may be considered after learning from first-version users.
 
 ### Create and set up a wedding
 
-1. Host creates a workspace with couple names, wedding date, and city (optional).
+1. Host creates a workspace with a wedding title, groom name, bride name, wedding date, and city (optional).
 2. Host adds, removes, or renames events.
 3. Host invites family collaborators.
 4. Dashboard prompts the family to add guests, assign tasks, and enter the starting budget.

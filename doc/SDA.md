@@ -116,7 +116,7 @@ Every tenant-owned record carries `weddingId`. The server derives that ID from v
 | Collection | Important fields | Notes |
 |---|---|---|
 | `users` | `_id`, `email`, `displayName`, `createdAt` | Family collaborators only; auth provider subject can be stored here |
-| `weddings` | `_id`, `ownerUserId`, `coupleNames`, `weddingDate`, `city`, `currency`, `budget`, `createdAt` | Workspace root |
+| `weddings` | `_id`, `ownerUserId`, `title`, `coupleNames`, `weddingDate`, `city`, `currency`, `budget`, `createdAt` | Workspace root |
 | `memberships` | `weddingId`, `userId`, `role`, `invitedAt`, `joinedAt` | Unique index on `(weddingId, userId)` |
 | `events` | `weddingId`, `name`, `date`, `startAt`, `endAt`, `venue`, `notes`, `sortOrder`, `livestream` | Event belongs to one wedding |
 | `guestHouseholds` | `weddingId`, `familyGroup`, `name`, `email`, `phone`, `attendees[]`, `dietaryNotes`, `accessibilityNotes` | Household-level records reduce duplicate family entries |

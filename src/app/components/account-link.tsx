@@ -12,5 +12,5 @@ export function AccountLink() {
       .catch(() => setSignedIn(false));
   }, []);
 
-  return <Link className="landing-signin" href={signedIn ? "/welcome" : "/login"}>{signedIn ? "Account" : "Sign in"}</Link>;
+  return <Link className="landing-signin" href={signedIn ? "/welcome" : "/login"}>{signedIn ? "Go to your wedding" : "Sign in"}</Link>;
 }

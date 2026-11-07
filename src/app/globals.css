@@ -155,7 +155,7 @@ img{display:block;max-width:100%}
 .form-error{margin:0;color:#9c3030;font-size:12px;line-height:1.5}
 .saved-workspaces{margin-top:34px}
 .saved-workspaces h2{margin:0 0 10px;font:500 22px var(--display)}
-.saved-workspaces>a{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-top:1px solid var(--line);text-decoration:none;background:#fff}
+.saved-workspace-row{display:flex;align-items:center;min-width:0;border-top:1px solid var(--line);background:#fff}.saved-workspace-row>a{display:flex;flex:1;min-width:0;justify-content:space-between;align-items:center;gap:16px;padding:14px 16px;text-decoration:none}.saved-workspace-row>a>span:first-child{min-width:0}.saved-workspace-row>a>span:last-child{flex:0 0 auto}.saved-workspace-row>.text-button{flex:0 0 auto;margin:0 16px 0 0}
 .saved-workspaces strong,.saved-workspaces small{display:block}.saved-workspaces strong{font-size:13px}.saved-workspaces small{margin-top:4px;color:var(--muted);font-size:11px}
 .events-content{width:min(100% - 40px,1200px);margin:46px auto 90px}
 .events-content>.dev-notice{max-width:600px;margin:0 0 32px}

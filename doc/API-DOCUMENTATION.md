@@ -117,6 +117,7 @@ Request:
 
 ```json
 {
+  "title": "Aarav & Meera's Wedding",
   "coupleNames": ["Aarav Sharma", "Meera Patel"],
   "weddingDate": "2027-02-14",
   "timeZone": "Asia/Kolkata",

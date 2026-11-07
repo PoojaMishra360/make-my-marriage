@@ -1,6 +1,6 @@
 /** Presentation-only seed data. Production pages should use server-side feature services. */
 export const demoDashboard = {
-  wedding: { id: "demo-wedding", coupleNames: ["Aarav", "Meera"], weddingDate: "14 February 2027", city: "Jaipur" },
+  wedding: { id: "demo-wedding", title: "Aarav & Meera's Wedding", coupleNames: ["Aarav", "Meera"], weddingDate: "14 February 2027", city: "Jaipur" },
   upcomingEvents: [
     { id: "mehendi", name: "Mehendi", dateLocal: "2027-02-12", startTimeLocal: "11:00", venue: { name: "Garden Terrace", address: "Jaipur, Rajasthan" } },
     { id: "sangeet", name: "Sangeet", dateLocal: "2027-02-13", startTimeLocal: "19:00", venue: { name: "The Courtyard", address: "Jaipur, Rajasthan" } }

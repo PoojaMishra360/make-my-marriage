@@ -87,6 +87,7 @@ One record per family collaborator account. Authentication credentials and one-t
 {
   "_id": "ObjectId(wedding1)",
   "ownerUserId": "ObjectId(user1)",
+  "title": "Aarav & Meera's Wedding",
   "coupleNames": ["Aarav Sharma", "Meera Patel"],
   "weddingDate": "2027-02-14",
   "timeZone": "Asia/Kolkata",
