@@ -39,10 +39,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ wed
     const url = invitationUrl(token, request);
     let delivery: "sent" | "development_preview" = "development_preview";
     if (process.env.RESEND_API_KEY) {
+      const fromAddress = process.env.RESEND_FROM_EMAIL?.trim();
+      if (!fromAddress) {
+        await db.collection("invitations").deleteOne({ _id: result.insertedId });
+        throw new ApiError(500, "RESEND_FROM_EMAIL_MISSING", "Set RESEND_FROM_EMAIL to a verified sender address in Resend, for example: Make My Marriage <noreply@yourdomain.com>");
+      }
       try {
         const resend = new Resend(process.env.RESEND_API_KEY);
         const emailResult = await resend.emails.send({
-          from: process.env.RESEND_FROM_EMAIL ?? "Make My Marriage <onboarding@resend.dev>",
+          from: fromAddress,
           to: [invitation.email],
           replyTo: ownerUser?.email,
           subject: `${invitation.displayName}, you are invited to a wedding workspace`,
@@ -53,7 +58,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ wed
         delivery = "sent";
       } catch (error) {
         await db.collection("invitations").deleteOne({ _id: result.insertedId });
-        throw new ApiError(502, "EMAIL_DELIVERY_FAILED", "The invitation could not be sent. Check the Resend sender configuration and try again.");
+        const message = error instanceof Error && error.message ? error.message : "The invitation could not be sent. Check the Resend sender configuration and try again.";
+        throw new ApiError(502, "EMAIL_DELIVERY_FAILED", `The invitation could not be sent. ${message}`);
       }
     }
     return NextResponse.json({ invitation: { ...invitation, _id: result.insertedId, token: process.env.RESEND_API_KEY ? undefined : token, invitationUrl: process.env.RESEND_API_KEY ? undefined : url, delivery } }, { status: 201 });
