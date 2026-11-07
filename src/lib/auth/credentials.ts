@@ -2,7 +2,13 @@ import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypt
 import { ObjectId } from "mongodb";
 
 const sessionCookieName = "mmm_session";
-const sessionSecret = process.env.AUTH_SECRET ?? "make-my-marriage-development-session-secret";
+const developmentSessionSecret = "make-my-marriage-development-session-secret";
+
+function getSessionSecret() {
+  const secret = process.env.AUTH_SECRET;
+  if (!secret && process.env.NODE_ENV === "production") throw new Error("AUTH_SECRET must be configured in production.");
+  return secret ?? developmentSessionSecret;
+}
 
 export function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
@@ -23,7 +29,7 @@ export function verifyPassword(password: string, storedHash: string) {
 }
 
 function signUserId(userId: string) {
-  return createHmac("sha256", sessionSecret).update(userId).digest("hex");
+  return createHmac("sha256", getSessionSecret()).update(userId).digest("hex");
 }
 
 export function createSessionValue(userId: ObjectId) {
