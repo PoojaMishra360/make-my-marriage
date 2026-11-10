@@ -1,8 +1,83 @@
 import Link from "next/link";
-import { demoDashboard } from "@/features/dashboard/demo-data";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import { ObjectId } from "mongodb";
+import { readSessionUserId } from "@/lib/auth/credentials";
+import { getDb } from "@/lib/db/mongodb";
 
 export default async function EventPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await params;
-  const event = demoDashboard.upcomingEvents.find((item) => item.id === eventId) ?? demoDashboard.upcomingEvents[0];
-  return <main className="shell"><header className="topbar"><Link href="/" className="brand">Make My Marriage</Link><Link href="/" className="back">← Dashboard</Link></header><section className="hero compact"><p className="eyebrow">{event.dateLocal} · {event.startTimeLocal}</p><h1>{event.name}</h1><p>{event.venue.name}, {event.venue.address}</p><div className="actions"><button>Edit event</button><button className="secondary">Add guest</button></div></section><section className="metrics"><article><span>Confirmed guests</span><strong>86</strong><p>24 awaiting response</p></article><article><span>Open tasks</span><strong>5</strong><p>2 due this week</p></article><article><span>Event budget</span><strong>₹ 1,40,000</strong><p>₹ 62,000 recorded as spent</p></article></section><section className="grid"><article className="panel"><p className="eyebrow">Livestream</p><h2>Share the celebration</h2><p className="muted">No livestream link has been added yet.</p><button className="secondary">Add livestream details</button></article><article className="panel"><p className="eyebrow">Photos</p><h2>Event gallery</h2><p className="muted">Photos will remain private to invited collaborators.</p><button className="secondary">Upload a photo</button></article></section></main>;
+  if (!ObjectId.isValid(eventId)) notFound();
+  const cookieStore = await cookies();
+  const session = cookieStore.get("mmm_session")?.value;
+  const request = new Request("http://localhost", { headers: { cookie: session ? `mmm_session=${session}` : "" } });
+  const userId = readSessionUserId(request);
+  if (!userId) redirect(`/login?next=${encodeURIComponent(`/events/${eventId}`)}`);
+  const db = await getDb();
+  const event = await db.collection("events").findOne({ _id: new ObjectId(eventId), status: "planned" });
+  if (!event) notFound();
+  const membership = await db.collection("memberships").findOne({ weddingId: event.weddingId, userId: new ObjectId(userId), status: "active" });
+  if (!membership) notFound();
+  const wedding = await db.collection("weddings").findOne({ _id: event.weddingId }, { projection: { title: 1 } });
+
+  return (
+    <main className="setup-page">
+      <header className="setup-topbar">
+        <Link href="/dashboard" className="brand">
+          Make My Marriage
+        </Link>
+        <Link
+          href={`/weddings/${event.weddingId.toHexString()}/events`}
+          className="setup-back"
+        >
+          ← Wedding events
+        </Link>
+      </header>
+      <section className="invitation-card">
+        <p className="landing-kicker">{wedding?.title ?? "Wedding workspace"}</p>
+        <h1>{event.name}</h1>
+        <p>
+          {new Date(`${event.dateLocal}T00:00:00`).toLocaleDateString("en-IN", {
+            dateStyle: "full",
+          })}
+          {event.startTimeLocal ? ` · ${event.startTimeLocal}` : ""}
+          {event.endTimeLocal ? `–${event.endTimeLocal}` : ""}
+        </p>
+        {event.venue?.name && <h2>{event.venue.name}</h2>}
+        {event.venue?.address && <p>{event.venue.address}</p>}
+        {event.description && <p>{event.description}</p>}
+        {event.venue?.notes && (
+          <p>
+            <strong>Venue notes:</strong> {event.venue.notes}
+          </p>
+        )}
+        {event.budgetMinor != null && (
+          <p>
+            <strong>Planned event budget:</strong> ₹
+            {(event.budgetMinor / 100).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+            })}
+          </p>
+        )}
+        {event.livestream?.url && (
+          <p>
+            <a
+              href={event.livestream.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open livestream ↗
+            </a>
+          </p>
+        )}
+        {event.livestream?.instructions && <p>{event.livestream.instructions}</p>}
+        <Link
+          className="landing-button"
+          href={`/weddings/${event.weddingId.toHexString()}/events`}
+        >
+          Manage event details
+        </Link>
+      </section>
+    </main>
+  );
 }

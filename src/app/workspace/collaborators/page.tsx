@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { developmentHeaders } from "@/lib/auth/development-client";
 
 type Wedding = { _id: string; title: string; coupleNames: string[]; weddingDate: string; city?: string };
@@ -15,8 +15,9 @@ export default function CollaboratorsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [saving, setSaving] = useState(false);
+  const [removingId, setRemovingId] = useState("");
 
-    async function load() {
+  const load = useCallback(async () => {
     const response = await fetch("/api/v1/weddings", { headers: developmentHeaders() });
     const body = await response.json();
     if (!response.ok) throw new Error(body.error?.message ?? "Could not load your workspace.");
@@ -28,9 +29,22 @@ export default function CollaboratorsPage() {
       if (!inviteResponse.ok) throw new Error(inviteBody.error?.message ?? "Could not load invitations.");
       setInvitations(inviteBody.data ?? []);
     }
-  }
+  }, []);
 
-    useEffect(() => { load().catch((reason) => setError(reason instanceof Error ? reason.message : "Could not load collaborators.")); }, []);
+  useEffect(() => { load().catch((reason) => setError(reason instanceof Error ? reason.message : "Could not load collaborators.")); }, [load]);
+
+  async function removeInvitation(invitation: Invitation) {
+      if (!wedding || !window.confirm(`Remove the pending invitation for ${invitation.displayName}?`)) return;
+      setRemovingId(invitation._id); setError(""); setSuccess("");
+      try {
+        const response = await fetch(`/api/v1/weddings/${wedding._id}/invitations?invitationId=${encodeURIComponent(invitation._id)}`, { method: "DELETE", headers: developmentHeaders() });
+        const body = response.status === 204 ? null : await response.json();
+        if (!response.ok) throw new Error(body?.error?.message ?? "Could not remove invitation.");
+        setInvitations((current) => current.filter((item) => item._id !== invitation._id));
+        setSuccess("Pending invitation removed.");
+      } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not remove invitation."); }
+      finally { setRemovingId(""); }
+  }
 
     async function invite(event: FormEvent<HTMLFormElement>) {
       event.preventDefault();
@@ -65,7 +79,7 @@ export default function CollaboratorsPage() {
           <div className="form-actions"><button className="landing-button setup-submit" disabled={saving}>{saving ? "Creating invitation..." : "Send invitation"}</button><button type="button" className="text-button" onClick={() => setShowForm(false)}>Cancel</button></div>
         </form>}
         <section className="collaborators-panel"><div className="dashboard-panel-heading"><div><p className="landing-kicker">Private access</p><h2>Invited family</h2></div><span>{invitations.length} pending</span></div>
-          {invitations.length === 0 ? <div className="collaborators-empty"><h3>No family members invited yet</h3><p>Invite collaborators to help manage events, guests, tasks, expenses, and photos.</p><button className="landing-button landing-button-small" type="button" onClick={() => setShowForm(true)}>Invite the first member</button></div> : invitations.map((invitation) => <article className="collaborator-row" key={invitation._id}><div className="collaborator-avatar">{invitation.displayName.charAt(0).toUpperCase()}</div><div><h3>{invitation.displayName}</h3><p>{invitation.email} · {roleLabels[invitation.role] ?? invitation.role}</p></div><span className="collaborator-status">{invitation.delivery === "sent" ? "Email sent" : "Development preview"}</span><small>Expires {new Date(invitation.expiresAt).toLocaleDateString("en-IN")}</small></article>)}
+          {invitations.length === 0 ? <div className="collaborators-empty"><h3>No family members invited yet</h3><p>Invite collaborators to help manage events, guests, tasks, expenses, and photos.</p><button className="landing-button landing-button-small" type="button" onClick={() => setShowForm(true)}>Invite the first member</button></div> : invitations.map((invitation) => <article className="collaborator-row" key={invitation._id}><div className="collaborator-avatar">{invitation.displayName.charAt(0).toUpperCase()}</div><div><h3>{invitation.displayName}</h3><p>{invitation.email} · {roleLabels[invitation.role] ?? invitation.role}</p></div><span className="collaborator-status">{invitation.delivery === "sent" ? "Email sent" : "Development preview"}</span><small>Expires {new Date(invitation.expiresAt).toLocaleDateString("en-IN")}</small><button type="button" className="text-button" onClick={() => void removeInvitation(invitation)} disabled={removingId === invitation._id}>{removingId === invitation._id ? "Removing…" : "Remove"}</button></article>)}
         </section>
       </div>
     </main>;

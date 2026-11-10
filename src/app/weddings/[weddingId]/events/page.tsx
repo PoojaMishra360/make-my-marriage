@@ -71,16 +71,15 @@ export default function WeddingEventsPage({ params }: { params: Promise<{ weddin
   }
 
   return <main className="setup-page">
-    <header className="setup-topbar"><Link href="/" className="brand">Make My Marriage</Link><Link href="/workspace/new" className="setup-back">← All workspaces</Link></header>
+    <header className="setup-topbar"><Link href="/dashboard" className="brand">Make My Marriage</Link><Link href="/dashboard" className="setup-back">← Dashboard</Link></header>
     <div className="events-content">
-      <div className="dev-notice"><strong>Local development preview</strong><span>Changes save to MongoDB. Email sign-in and family access are not connected yet.</span></div>
       {wedding && <><p className="eyebrow">Wedding workspace · {wedding.weddingDate}{wedding.city ? ` · ${wedding.city}` : ""}</p><h1>{wedding.coupleNames.join(" & ")}</h1><p className="setup-intro">Set up the celebrations in your wedding schedule.</p></>}
       <div className="events-layout">
         <section className="events-list-panel"><div className="events-list-heading"><div><p className="eyebrow">Your schedule</p><h2>Wedding events</h2></div><span>{events.length} {events.length === 1 ? "event" : "events"}</span></div>
           {loading ? <p className="muted">Loading your wedding…</p> : events.length === 0 ? <div className="empty-events"><span aria-hidden="true">✳</span><h3>Your event schedule starts here</h3><p>Add a ceremony, gathering, or any celebration. You can change the names and dates whenever you need.</p></div> : <div className="event-record-list">{events.map((item, index) => <article className="event-record" key={item._id}>
             <div className="event-date-chip"><strong>{new Date(`${item.dateLocal}T00:00:00`).toLocaleDateString("en-IN", { day: "2-digit" })}</strong><small>{new Date(`${item.dateLocal}T00:00:00`).toLocaleDateString("en-IN", { month: "short" })}</small></div>
-            <div className="event-record-info"><h3>{item.name}</h3><p>{[item.startTimeLocal, item.venue?.name, item.venue?.address].filter(Boolean).join(" · ") || "Event details can be added"}</p></div>
-            <div className="event-record-actions"><button type="button" onClick={() => setEditing(item)}>Edit</button><button type="button" aria-label={`Remove ${item.name}`} onClick={() => void archiveEvent(item)}>Remove</button></div>
+            <div className="event-record-info"><h3><Link href={`/events/${item._id}`}>{item.name}</Link></h3><p>{[item.startTimeLocal, item.venue?.name, item.venue?.address].filter(Boolean).join(" · ") || "Event details can be added"}</p></div>
+            <div className="event-record-actions"><Link href={`/events/${item._id}`}>Details</Link><button type="button" onClick={() => setEditing(item)}>Edit</button><button type="button" aria-label={`Remove ${item.name}`} onClick={() => void archiveEvent(item)}>Remove</button></div>
           </article>)}</div>}
         </section>
         <section className="event-form-panel"><p className="eyebrow">{editing ? "Update details" : "Build your schedule"}</p><h2>{editing ? "Edit event" : "Add an event"}</h2>

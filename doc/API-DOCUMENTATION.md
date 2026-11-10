@@ -123,6 +123,10 @@ Request:
 
 Owner-only. Lists pending invitations without exposing token hashes.
 
+### `DELETE /weddings/:weddingId/invitations?invitationId={invitationId}`
+
+Owner or admin. Revokes one pending invitation so its token can no longer be accepted. Returns `204 No Content`; returns `404` if it is not a pending invitation in this wedding.
+
 ### `POST /weddings`
 
 Create a wedding workspace. The authenticated user becomes its owner.
@@ -441,13 +445,15 @@ Create request:
 
 All routes are wedding-scoped.
 
-- `GET /expenses?eventId=&category=&paymentStatus=&paidBy=&from=&to=&limit=&cursor=`
-- `POST /expenses`
-- `GET /expenses/{expenseId}`
-- `PATCH /expenses/{expenseId}`
-- `DELETE /expenses/{expenseId}` — archive with audit history.
-- `GET /budget/summary` — overall and event/category totals.
-- `PATCH /events/{eventId}/budget` — set or update an event budget.
+- `GET /api/v1/weddings/{weddingId}/expenses` — list up to 100 active expenses, newest first.
+- `POST /api/v1/weddings/{weddingId}/expenses` — create an expense; an optional event must belong to this wedding.
+- `GET /api/v1/weddings/{weddingId}/expenses/{expenseId}`
+- `PATCH /api/v1/weddings/{weddingId}/expenses/{expenseId}`
+- `DELETE /api/v1/weddings/{weddingId}/expenses/{expenseId}` — archive the expense so it is excluded from summaries without deleting its record.
+- `GET /api/v1/weddings/{weddingId}/budget/summary` — overall, payment-status, event, and category totals.
+- `PATCH /api/v1/weddings/{weddingId}` — update the overall `budgetMinor` and currency through the wedding settings endpoint.
+
+All endpoints require active wedding membership. The summary counts only `paid` amounts as actual spend; `due` and `estimated` remain separate, and `cancelled` amounts are excluded from active totals.
 
 Create expense request:
 

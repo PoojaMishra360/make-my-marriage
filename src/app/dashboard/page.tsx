@@ -2,13 +2,13 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
-import { demoDashboard } from "@/features/dashboard/demo-data";
 import { LogoutButton } from "@/app/components/logout-button";
+import { getBudgetSummary, listExpenses } from "@/features/expenses/repository";
 import { readSessionUserId } from "@/lib/auth/credentials";
 import { getDb } from "@/lib/db/mongodb";
 
-function formatMoney(minor: number) {
-  return `₹${(minor / 100).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+function formatMoney(minor: number, currency = "INR") {
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency, maximumFractionDigits: 0 }).format(minor / 100);
 }
 
 export default async function DashboardPage() {
@@ -24,24 +24,48 @@ export default async function DashboardPage() {
   ]);
   if (!user) redirect("/login");
   if (!workspace) redirect("/workspace/new");
-  const wedding = await db.collection("weddings").findOne({ _id: workspace.weddingId }, { projection: { title: 1, coupleNames: 1, weddingDate: 1, city: 1 } });
+  const [wedding, events, budgetSummary, recentExpenses] = await Promise.all([
+    db.collection("weddings").findOne({ _id: workspace.weddingId }, { projection: { title: 1, coupleNames: 1, weddingDate: 1, city: 1, budgetMinor: 1, currency: 1 } }),
+    db.collection("events").find({ weddingId: workspace.weddingId, status: "planned" }).sort({ dateLocal: 1, sortOrder: 1 }).limit(5).toArray(),
+    getBudgetSummary(workspace.weddingId.toHexString()),
+    listExpenses(workspace.weddingId.toHexString()),
+  ]);
   if (!wedding) redirect("/workspace/new");
 
-  const totalGuests = demoDashboard.guests.confirmed + demoDashboard.guests.awaiting + demoDashboard.guests.declined;
-  const responseRate = Math.round((demoDashboard.guests.confirmed / totalGuests) * 100);
+  const weddingId = workspace.weddingId.toHexString();
+  const eventsHref = `/weddings/${weddingId}/events`;
+  const planningHref = (section: string) => `/weddings/${weddingId}/planning/${section}`;
+  const nextEvent = events[0];
+  const nextDate = nextEvent ? new Date(`${nextEvent.dateLocal}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : null;
 
   return <main className="dashboard-page">
     <header className="dashboard-topbar">
       <Link className="dashboard-brand" href="/">Make My Marriage</Link>
-      <nav className="dashboard-nav" aria-label="Workspace navigation"><Link className="dashboard-nav-active" href="/dashboard">Overview</Link><Link href="/workspace/new">Events</Link><Link href="/workspace/new">Guests</Link><Link href="/workspace/new">Tasks</Link><Link href="/workspace/new">Budget</Link><Link href="/workspace/collaborators">Family</Link></nav>
+      <nav className="dashboard-nav" aria-label="Workspace navigation"><Link className="dashboard-nav-active" href="/dashboard">Overview</Link><Link href={eventsHref}>Events</Link><Link href={planningHref("guests")}>Guests</Link><Link href={planningHref("tasks")}>Tasks</Link><Link href={planningHref("budget")}>Budget</Link><Link href="/workspace/collaborators">Family</Link></nav>
       <div className="dashboard-account"><span>{user.displayName}</span><LogoutButton /></div>
     </header>
     <div className="dashboard-content">
-      <div className="dashboard-notice"><strong>Development dashboard</strong><span>Sample planning data is shown here. Your account and sessions are connected to MongoDB.</span></div>
-      <section className="dashboard-heading"><div><p className="landing-kicker">{wedding.title} · {wedding.city ?? "Wedding workspace"}</p><h1>Good morning, {user.displayName}.</h1><p>{wedding.coupleNames.join(" & ")} · {wedding.weddingDate}</p></div><div className="dashboard-heading-actions"><Link className="landing-button landing-button-small" href="/workspace/new">Add to workspace <span aria-hidden="true">+</span></Link><Link className="dashboard-public-link" href="/">Preview workspace ↗</Link></div></section>
-      <section className="dashboard-hero-grid"><article className="dashboard-next panel-next"><div className="dashboard-card-kicker">NEXT CELEBRATION <span>3 DAYS TO GO</span></div><h2>Mehendi Ceremony</h2><p>Garden Terrace · Jaipur, Rajasthan</p><div className="dashboard-next-meta"><span>12 February 2027</span><span>11:00 onwards</span></div><Link className="dashboard-card-link" href="/events/mehendi">Open event workspace →</Link></article><article className="dashboard-metric"><span className="dashboard-card-kicker">GUEST LIST</span><strong>{demoDashboard.guests.confirmed} <small>of {totalGuests}</small></strong><div className="dashboard-progress"><span style={{ width: `${responseRate}%` }} /></div><p>{responseRate}% confirmed · {demoDashboard.guests.awaiting} awaiting response</p></article><article className="dashboard-metric"><span className="dashboard-card-kicker">BUDGET &amp; EXPENSES</span><strong>{formatMoney(demoDashboard.budget.spentMinor)} <small>spent</small></strong><div className="dashboard-progress dashboard-progress-green"><span style={{ width: "61%" }} /></div><p>{formatMoney(demoDashboard.budget.remainingMinor)} remaining · sample data</p></article></section>
-      <section className="dashboard-columns"><article className="dashboard-panel"><div className="dashboard-panel-heading"><div><p className="landing-kicker">Upcoming</p><h2>Wedding events</h2></div><Link href="/workspace/new">View all →</Link></div>{demoDashboard.upcomingEvents.map((event) => <div className="dashboard-event-row" key={event.id}><div className="dashboard-date"><strong>{new Date(`${event.dateLocal}T00:00:00`).toLocaleDateString("en-IN", { day: "2-digit" })}</strong><small>{new Date(`${event.dateLocal}T00:00:00`).toLocaleDateString("en-IN", { month: "short" })}</small></div><div><h3>{event.name}</h3><p>{event.startTimeLocal} · {event.venue.name}</p></div><Link href={`/events/${event.id}`}>Details</Link></div>)}</article><article className="dashboard-panel"><div className="dashboard-panel-heading"><div><p className="landing-kicker">Action items</p><h2>Tasks &amp; shopping</h2></div><Link href="/workspace/new">Add task +</Link></div><div className="dashboard-stat-line"><strong>{demoDashboard.tasks.open}</strong><span>open tasks</span><strong>{demoDashboard.tasks.dueSoon}</strong><span>due soon</span></div><div className="dashboard-task-row"><span className="dashboard-check">✓</span><span><strong>Confirm mehendi artist</strong><small>Due tomorrow · Meera P.</small></span></div><div className="dashboard-task-row"><span className="dashboard-check"/><span><strong>Pick up sherwani and safa trials</strong><small>Due 10 February · Aarav S.</small></span></div></article></section>
-      <section className="dashboard-columns"><article className="dashboard-panel"><div className="dashboard-panel-heading"><div><p className="landing-kicker">Recent ledger</p><h2>Budget &amp; expenses</h2></div><Link href="/workspace/new">Add expense +</Link></div>{demoDashboard.recentExpenses.map((expense) => <div className="dashboard-expense-row" key={expense.id}><span className="dashboard-expense-icon">₹</span><span><strong>{expense.description}</strong><small>{expense.eventName} · {expense.paymentStatus}</small></span><b>{formatMoney(expense.amountMinor)}</b></div>)}</article><article className="dashboard-panel"><div className="dashboard-panel-heading"><div><p className="landing-kicker">Family updates</p><h2>Latest activity</h2></div><Link href="/workspace/new">See all →</Link></div><div className="dashboard-update"><span className="dashboard-update-dot"/><p>Meera added a receipt for Mehendi decor<small>14 minutes ago · sample activity</small></p></div><div className="dashboard-update"><span className="dashboard-update-dot dashboard-update-dot-green"/><p>24 guests confirmed for Sangeet<small>1 hour ago · sample activity</small></p></div><div className="dashboard-update"><span className="dashboard-update-dot dashboard-update-dot-rose"/><p>Aarav updated the airport pickup roster<small>3 hours ago · sample activity</small></p></div></article></section>
+      <section className="dashboard-heading"><div><p className="landing-kicker">{wedding.title} · {wedding.city ?? "Wedding workspace"}</p><h1>Good morning, {user.displayName}.</h1><p>{wedding.coupleNames.join(" & ")} · {wedding.weddingDate}</p></div><div className="dashboard-heading-actions"><Link className="landing-button landing-button-small" href={eventsHref}>Add to workspace <span aria-hidden="true">+</span></Link><Link className="dashboard-public-link" href="/">Preview workspace ↗</Link></div></section>
+      <section className="dashboard-hero-grid">
+        <article className="dashboard-next panel-next"><div className="dashboard-card-kicker">{nextEvent ? "NEXT CELEBRATION" : "YOUR CELEBRATION"}</div><h2>{nextEvent?.name ?? "Start your event schedule"}</h2><p>{nextEvent ? [nextEvent.venue?.name, nextEvent.venue?.address].filter(Boolean).join(" · ") || "Add venue details to this event" : "Add ceremonies and gatherings to your wedding plan."}</p><div className="dashboard-next-meta"><span>{nextDate ?? "No upcoming events"}</span><span>{nextEvent?.startTimeLocal ?? "Your schedule"}</span></div><Link className="dashboard-card-link" href={nextEvent ? `/events/${nextEvent._id.toHexString()}` : eventsHref}>{nextEvent ? "Open event workspace →" : "Create your first event →"}</Link></article>
+        <Link className="dashboard-metric" href={planningHref("guests")}><span className="dashboard-card-kicker">GUEST LIST</span><strong>Plan your guests</strong><p>Guest and RSVP management is the next planning module.</p><span className="dashboard-card-link">Open guest list →</span></Link>
+        <Link className="dashboard-metric" href={planningHref("budget")}><span className="dashboard-card-kicker">BUDGET &amp; EXPENSES</span><strong>{formatMoney(budgetSummary.paidMinor, budgetSummary.currency)} <small>paid</small></strong><p>{budgetSummary.budgetMinor === null ? "Set your wedding budget" : `${formatMoney(budgetSummary.remainingMinor ?? 0, budgetSummary.currency)} remaining of ${formatMoney(budgetSummary.budgetMinor, budgetSummary.currency)}`}</p><span className="dashboard-card-link">Open budget →</span></Link>
+      </section>
+      <section className="dashboard-columns">
+        <article className="dashboard-panel">
+          <div className="dashboard-panel-heading"><div><p className="landing-kicker">Upcoming</p><h2>Wedding events</h2></div><Link href={eventsHref}>View all →</Link></div>
+          {events.length === 0 ? <div className="collaborators-empty"><h3>No events added yet</h3><p>Create the first celebration in your schedule.</p><Link className="landing-button landing-button-small" href={eventsHref}>Add an event +</Link></div> : events.map((event) => <div className="dashboard-event-row" key={event._id.toHexString()}>
+            <div className="dashboard-date"><strong>{new Date(`${event.dateLocal}T00:00:00`).toLocaleDateString("en-IN", { day: "2-digit" })}</strong><small>{new Date(`${event.dateLocal}T00:00:00`).toLocaleDateString("en-IN", { month: "short" })}</small></div>
+            <div><h3>{event.name}</h3><p>{[event.startTimeLocal, event.venue?.name, event.venue?.address].filter(Boolean).join(" · ") || "Event details can be added"}</p></div>
+            <Link href={`/events/${event._id.toHexString()}`}>Details</Link>
+          </div>)}
+        </article>
+        <article className="dashboard-panel"><div className="dashboard-panel-heading"><div><p className="landing-kicker">Action items</p><h2>Tasks &amp; shopping</h2></div><Link href={planningHref("tasks")}>Open tasks →</Link></div><div className="dashboard-stat-line"><strong>—</strong><span>open tasks</span><strong>—</strong><span>due soon</span></div><p className="muted">Task tracking is not available yet. Your family can still coordinate access from the collaborators page.</p><Link className="dashboard-card-link" href="/workspace/collaborators">Invite family →</Link></article>
+      </section>
+      <section className="dashboard-columns">
+        <article className="dashboard-panel"><div className="dashboard-panel-heading"><div><p className="landing-kicker">Recent ledger</p><h2>Budget &amp; expenses</h2></div><Link href={planningHref("budget")}>Open budget →</Link></div>{recentExpenses.length === 0 ? <p className="muted">No expense records yet. Add the first entry to start your ledger.</p> : recentExpenses.slice(0, 3).map((expense) => <div className="dashboard-expense-row" key={expense._id.toHexString()}><span><strong>{expense.description}</strong><small>{expense.category} · {expense.paymentStatus}</small></span><b>{formatMoney(expense.amountMinor, expense.currency)}</b></div>)}</article>
+        <article className="dashboard-panel"><div className="dashboard-panel-heading"><div><p className="landing-kicker">Family updates</p><h2>Latest activity</h2></div><Link href="/workspace/collaborators">Manage family →</Link></div><p className="muted">Activity history is not available yet. Pending invitations and collaborators are managed in Family.</p></article>
+      </section>
     </div>
   </main>;
 }

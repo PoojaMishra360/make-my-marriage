@@ -15,6 +15,7 @@ async function main() {
     db.collection("rsvpLinks").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
     db.collection("tasks").createIndex({ weddingId: 1, status: 1, dueAt: 1 }),
     db.collection("expenses").createIndex({ weddingId: 1, expenseDate: -1 }),
+    db.collection("expenses").createIndex({ weddingId: 1, eventId: 1, category: 1 }),
     db.collection("mediaAssets").createIndex({ weddingId: 1, eventId: 1, purpose: 1, createdAt: -1 }),
     db.collection("invitationDeliveries").createIndex({ idempotencyKey: 1 }, { unique: true }),
     db.collection("activityEvents").createIndex({ weddingId: 1, createdAt: -1 })

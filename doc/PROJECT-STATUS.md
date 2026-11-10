@@ -1,8 +1,8 @@
 # Saath Project Status
 
-**Last updated:** 7 November 2026  
-**Current phase:** Product scope and UI prototype  
-**Overall status:** Foundation in progress; production workflows are not yet implemented.
+**Last updated:** 9 November 2026
+**Current phase:** Core workspace workflows
+**Overall status:** Authentication, invitations, event scheduling, and expense tracking are implemented; guest and task workflows remain deferred.
 
 This file is the working progress summary for the project. It distinguishes designed or demo UI from working application features.
 
@@ -12,12 +12,12 @@ This file is the working progress summary for the project. It distinguishes desi
 | --- | --- | --- |
 | Product scope | Defined; requirements draft | The first-version product, users, goals, feature scope, non-goals, and user journeys are documented in [PRD.md](./PRD.md). |
 | System architecture | Documented; implementation choices remain | The modular Next.js application, MongoDB Atlas, private media storage, identity, and service boundaries are described in [SDA.md](./SDA.md). Authentication and delivery providers are not selected or configured. |
-| Database and API design | Documented; partially implemented | Data and endpoint plans are in [DATABASE-DESIGN.md](./DATABASE-DESIGN.md) and [API-DOCUMENTATION.md](./API-DOCUMENTATION.md). The current code provides a health endpoint and a starter events API, not the full documented API. |
+| Database and API design | Documented; partially implemented | Data and endpoint plans are in [DATABASE-DESIGN.md](./DATABASE-DESIGN.md) and [API-DOCUMENTATION.md](./API-DOCUMENTATION.md). Health, event, invitation, and expense/budget APIs are implemented; other documented workflows remain partial or deferred. |
 | Public home page | UI prototype with working auth entry | The responsive Stitch-inspired landing page is at `src/app/page.tsx`. It includes the Make My Marriage mark, navigation, hero, workspace preview with sample content, feature sections, family section, and footer. The home account link opens sign-in for anonymous users and Account for authenticated users; wedding creation remains a development workflow. |
-| App and event foundation | In progress | The project has a Next.js App Router scaffold, MongoDB connection seam, event schemas/repository, shared validation, health route, and starter event routes. The development membership adapter is not production authentication. |
+| App and event foundation | Events implemented with MongoDB | Authenticated workspace members can list, create, update, archive, and view wedding events. The dashboard reads real events from MongoDB and event detail checks workspace membership. |
 | Sign-in and wedding creation | Partially implemented; development auth | The Stitch-inspired login page supports local and deployed email/password account creation, sign-in, sign-out, session lookup, a protected welcome page, authenticated-login redirects, account-aware home navigation, and validation/error handling with MongoDB-backed users and signed HTTP-only sessions. Production requires the Vercel `AUTH_SECRET` environment variable. Wedding onboarding and editing require a title, groom name, bride name, and wedding date. A production passwordless provider and full workspace onboarding are still not configured. |
-| Signed-in dashboard | UI prototype implemented; protected | Protected `/dashboard` provides a Stitch-inspired wedding overview with sample events, guest/RSVP, task, budget, expense, and family activity sections. Live dashboard aggregation and mutation workflows remain deferred. Users without a wedding workspace are redirected to onboarding first. |
-| Guests, invitations, tasks, budget, media, and activity | Invitations partially implemented | Owner/admin invitations are stored in MongoDB and use Resend when `RESEND_API_KEY` is configured; without it, the app returns a development invitation preview. Invitations support admin, manager, and legacy collaborator roles, with an acceptance page and email-matched workspace membership flow. A verified sending domain and DNS authentication are still required for reliable inbox placement. Guest management, tasks, budget, media, and activity remain incomplete workflows. |
+| Signed-in dashboard | Protected; partially live | Protected `/dashboard` displays the active wedding and MongoDB-backed upcoming events, paid expense total, and latest ledger records. Guest/RSVP, task, and activity metrics remain unavailable until their workflows are implemented. Users without a wedding workspace are redirected to onboarding first. |
+| Guests, invitations, tasks, budget, media, and activity | Invitations and expense/budget tracking implemented; others deferred | Invitations support admin, manager, and legacy collaborator roles, acceptance, email-matched membership, and pending-invitation revocation. Expense CRUD and archived records are wedding-scoped in MongoDB; budget summaries separate paid, due, and estimated amounts. Guest management, tasks, receipt uploads, and activity history remain incomplete. |
 
 ## Important implementation boundary
 
@@ -43,6 +43,8 @@ The landing page contains illustrative copy and sample figures to match the Stit
 | 7 November 2026 | Production sign-in enabled | Removed the production-only authentication block, enabled signed email/password sessions on Vercel, and made `AUTH_SECRET` mandatory when production sessions are used. `npm run build` and `npm run lint` pass. |
 | 7 November 2026 | Vercel auth diagnostics improved | Added safe API error codes for missing `AUTH_SECRET`, missing `MONGODB_URI`, and unreachable MongoDB deployments so production login failures are actionable without exposing secrets. |
 | 7 November 2026 | Production invitation URLs corrected | Invitation links now use the configured public URL and fall back to the incoming Vercel origin when production is accidentally configured with a localhost `APP_URL`. |
+| 9 November 2026 | Pending invitation removal and live event navigation added | Admins can revoke pending invitations; dashboard links now route to the active wedding's MongoDB-backed event list and protected event details. Guest, task, and budget links lead to access-checked pages that clearly state those workflows are not implemented. |
+| 9 November 2026 | Budget and expense tracking implemented | Added workspace-scoped MongoDB expense CRUD, overall wedding budget editing, paid/due/estimated summaries, category/event breakdowns, and live dashboard ledger totals. Amounts are stored in minor currency units; unpaid and estimated expenses are excluded from actual spend. |
 
 ## Suggested next milestones
 

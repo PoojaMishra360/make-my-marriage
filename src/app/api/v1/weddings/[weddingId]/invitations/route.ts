@@ -65,3 +65,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ wed
     return NextResponse.json({ invitation: { ...invitation, _id: result.insertedId, token: process.env.RESEND_API_KEY ? undefined : token, invitationUrl: process.env.RESEND_API_KEY ? undefined : url, delivery } }, { status: 201 });
   });
 }
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ weddingId: string }> }) {
+  return apiRoute(request, async () => {
+    const { weddingId } = await params;
+    objectId.parse(weddingId);
+    await requireAdmin(request, weddingId);
+    const invitationId = new URL(request.url).searchParams.get("invitationId");
+    objectId.parse(invitationId ?? "");
+    const result = await (await getDb()).collection("invitations").updateOne(
+      { _id: new ObjectId(invitationId as string), weddingId: new ObjectId(weddingId), status: "pending" },
+      { $set: { status: "revoked", revokedAt: new Date() } },
+    );
+    if (!result.matchedCount) throw new ApiError(404, "NOT_FOUND", "Pending invitation not found.");
+    return new Response(null, { status: 204 });
+  });
+}
